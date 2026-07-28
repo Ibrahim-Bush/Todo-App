@@ -39,11 +39,17 @@ func create_todo_handler(c *gin.Context) {
 }
 
 func update_todo_handler(c *gin.Context) {
-	//get the data from json body.
+	//get id from parameter
+	input_id := c.Param("id")
+	//convert to integer.
+	id, _ := strconv.Atoi(input_id)
+
+	//get the new data from json body.
 	data := make(map[string]any)
 	c.ShouldBindJSON(&data)
+
 	//call update function to update todo.
-	todo_ptr, err := update_todo(data["id"].(int), data["title"].(string), data["completed"].(bool))
+	todo_ptr, err := update_todo(id, data["title"].(string), data["completed"].(bool))
 	//check if element updated or not.
 	if todo_ptr != nil {
 		c.JSON(200, *todo_ptr)

@@ -8,8 +8,8 @@ import (
 
 //create a global Id variable.
 var id int = 0
-//create a global slice for storage.
-var todo_list []*Todo
+//create a global empty slice for storage using make to avoid null behaviour.
+var todo_list = make([]*Todo, 0)
 
 func get_id() int{
 	id++
@@ -17,9 +17,11 @@ func get_id() int{
 }
 
 type Todo struct {
-	id        int
-	title     string
-	completed bool
+	//Entities must be of uppercase to be accessable to json libraries.
+	//add JSON tags to ensure consistent lowercase in requests and responses.
+	Id        int		`json:"id"`
+	Title     string 	`json:"title"`
+	Completed bool		`json:"completed"`
 }
 
 func create_todo(title string, status bool) *Todo {
@@ -36,17 +38,14 @@ func create_todo(title string, status bool) *Todo {
 }
 
 func get_all() []*Todo{
-	//if the list is empty.
-	if len(todo_list) == 0{
-		return nil
-	}
+	//return the todo_list.
 	return todo_list
 }
 
 func get_todo(id int) *Todo{
 	//iterate until finding the id.
 	for _, value := range(todo_list){
-		if value.id == id{
+		if value.Id == id{
 			return value
 		}
 	}
@@ -61,9 +60,9 @@ func update_todo(id int, new_title string, new_status bool) (*Todo, error){
 	}
 	//if valid search for id and update item.
 	for _, value := range(todo_list){
-		if value.id == id{
-			value.title = new_title
-			value.completed = new_status
+		if value.Id == id{
+			value.Title = new_title
+			value.Completed = new_status
 			return value, nil
 		}
 	}
@@ -76,7 +75,7 @@ func delete_todo(id int) error{
 	//iterate to search for id.
 	for index, value := range(todo_list){
 		//if id found, delete item.
-		if value.id == id{
+		if value.Id == id{
 			todo_list = slices.Delete(todo_list, index, index + 1)
 			return nil
 		}
