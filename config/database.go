@@ -19,6 +19,11 @@ func Init_database(connection_data string) (*gorm.DB, error) {
 	if err != nil{
 		return nil, err
 	}
+	//create a table for users.
+	err = db.AutoMigrate(&model.User{})
+	if err != nil{
+		return nil, err
+	}
 	//if the connection and autoMigration succeeded, return the database object.
 	return db, nil
 }
