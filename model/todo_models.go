@@ -8,8 +8,9 @@ type Todo struct {
 	Completed   bool  	   `json:"completed" gorm:"default:false;not null"`
 	Category    string	   `json:"category" gorm:"type:varchar(50);not null"`
 	Priority    string 	   `json:"priority" gorm:"tye:varchar(10);not null"`
-	CompletedAt *time.Time `json:"completedAt" grm:"default:null"`
+	CompletedAt *time.Time `json:"completedAt" gorm:"default:null"`
 	DueDate		*time.Time `json:"dueDate" gorm:"default:null"`
+	UserID      int		   `json:"-" gorm:"not null"`
 }
 
 type Create_todo_request struct{
