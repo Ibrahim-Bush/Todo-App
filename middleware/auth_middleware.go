@@ -4,7 +4,7 @@ import (
 	"Permanent-Storage-Todo/utils"
 	"errors"
 	"strings"
-
+	"Permanent-Storage-Todo/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,5 +43,31 @@ func Auth_middleware(c *gin.Context) {
 	c.Set("user", claims_ptr)
 
 	//move request to the appropriate handler.
+	c.Next()
+}
+
+func Authorization_middleware(c *gin.Context) {
+	
+	//get the user struct from the gin context.
+	value, exists := c.Get("user")
+	if !exists {
+		c.JSON(401, gin.H{"error": "Unauthorized"})
+		c.Abort()
+		return
+	}
+	//extract the struct from interface type.
+	user, ok := value.(*model.User_claims)
+	if !ok {
+		c.JSON(500, gin.H{"error": "Server error"})
+		c.Abort()
+		return
+	}
+	//check the user role.
+	if user.Role != "admin" {
+		c.JSON(403, gin.H{"error": "Lack required permissions"})
+		c.Abort()
+		return
+	}
+	//if the user is admin, move to the appropriate handler.
 	c.Next()
 }
