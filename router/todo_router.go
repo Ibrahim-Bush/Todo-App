@@ -25,6 +25,6 @@ func Init_router(router *gin.Engine, handler *handler.Todo_handler) {
 	todosAPI.PUT("/:id", handler.Update_todo_by_id_handler)
 	todosAPI.PUT("/category/:category", handler.Update_todos_by_category_handler)
 	todosAPI.DELETE("/:id", handler.Delete_todo_by_id_handler)
-	todosAPI.DELETE("", handler.Delete_all_todos_handler)
+	todosAPI.DELETE("", middleware.Authorization_middleware, handler.Delete_all_todos_handler)
 
 }
