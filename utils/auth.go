@@ -4,13 +4,13 @@ import (
 	"time"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"Permanent-Storage-Todo/model"
 	"errors"
 )
 
 var (
 	ErrInvalidPassword = errors.New("Invalid password")
 	ErrInvalidToken = errors.New("Invalid token")
-	ErrInvalidClaims = errors.New("Invalid claims")
 )
 
 //define a secret key for signature.
@@ -36,14 +36,9 @@ func Compare_password(password, hashed string) bool {
 	return false
 }
 
-func Generate_token(username, role string, id int) (string, error){
+func Generate_token(claims model.User_claims) (string, error){
 	//add required data in a map claims.
-	claims := jwt.MapClaims{
-		"userID": id,
-		"username": username,
-		"role": role,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
-	}
+	claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
 	//create token with the claims.
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	//add signature to secure token.
@@ -55,21 +50,19 @@ func get_secret_key(token *jwt.Token) (interface{}, error){
 	return []byte(jwt_signature), nil
 }
 
-func Verify_token(input_token string) (jwt.MapClaims, error){
-	//parse the token parts.
-	token, err := jwt.Parse(input_token, get_secret_key)
+func Verify_token(input_token string) (*model.User_claims, error){
+	//define a new object for claims.
+	var claims model.User_claims
+	//parse the token parts and get claims.
+	token, err := jwt.ParseWithClaims(input_token, &claims, get_secret_key)
 	//check the result.
 	if err != nil{
 		return nil, err
 	}
 	//if the token is valid.
 	if token.Valid == true{
-		//extract claims.
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if ok{
-			return claims, nil
-		}
-		return nil, ErrInvalidClaims
+		return &claims, nil
 	}
+
 	return nil, ErrInvalidToken
 }
