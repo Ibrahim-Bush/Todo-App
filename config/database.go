@@ -9,7 +9,7 @@ import (
 func Init_database(connection_data string) (*gorm.DB, error) {
 
 	//first get connection to the database.
-	db, err := gorm.Open(postgres.Open(connection_data), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(connection_data), &gorm.Config{TranslateError: true})
 	//check if something went wrong.
 	if err != nil{
 		return nil, err
