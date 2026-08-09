@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	ErrInvalidClaims = errors.New("Error invalid claims")
+)
+
 type Todo_handler struct {
 	service service.Todo_service
 }
@@ -15,6 +19,21 @@ type Todo_handler struct {
 func Init_handler(service service.Todo_service) *Todo_handler {
 	new_handler := Todo_handler{service: service}
 	return &new_handler
+}
+
+func Get_user_claims (c *gin.Context) (*model.User_claims, error) {
+	//get the user from gin context.
+	value, exists := c.Get("user")
+	if !exists {
+		return nil, ErrInvalidClaims
+	}
+	//extract the user struct from interface.
+	user, ok := value.(*model.User_claims)
+	if !ok {
+		return nil, ErrInvalidClaims
+	}
+	//if the struct extracted successfully.
+	return user, nil
 }
 
 func (handler *Todo_handler) Create_todo_handler(c *gin.Context) {
@@ -25,8 +44,14 @@ func (handler *Todo_handler) Create_todo_handler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid json"})
 		return
 	}
+	//get the userId to attach it with its todo.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//create new todo with the input data.
-	todo_ptr, err := handler.service.Create_todo(data)
+	todo_ptr, err := handler.service.Create_todo(data, user)
 	//check if something went wrong.
 	switch {
 	case err == nil:
@@ -56,8 +81,14 @@ func (handler *Todo_handler) Update_todo_by_id_handler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid json"})
 		return
 	}
+	//get the user claims to restrict modification.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//finally, update required item with update function.
-	todo_ptr, err := handler.service.Update_todo_by_id(id, data)
+	todo_ptr, err := handler.service.Update_todo_by_id(id, data, user)
 	//check if something went wrong.
 	switch {
 	case err == nil:
@@ -98,7 +129,13 @@ func (handler *Todo_handler) Update_todos_by_category_handler(c *gin.Context) {
 	}
 	//update todos of passed category.
 	new_status := *(data.Completed)
-	err = handler.service.Update_todos_by_category(category, new_status)
+	//get user calims to restrict modification to user's todos.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
+	err = handler.service.Update_todos_by_category(category, new_status, user)
 	//check the result of process.
 	switch {
 	case err == nil:
@@ -111,8 +148,14 @@ func (handler *Todo_handler) Update_todos_by_category_handler(c *gin.Context) {
 func (handler *Todo_handler) Delete_todo_by_id_handler(c *gin.Context) {
 	//get the id param.
 	id := c.Param("id")
+	//get the user claims to restrict deletion.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//delete todo of that ID.
-	err := handler.service.Delete_todo_by_id(id)
+	err = handler.service.Delete_todo_by_id(id, user)
 	//check the result of process.
 	switch {
 	case err == nil:
@@ -141,8 +184,14 @@ func (handler *Todo_handler) Delete_all_todos_handler(c *gin.Context) {
 func (handler *Todo_handler) Get_todo_by_id_handler(c *gin.Context) {
 	//get id parameter.
 	id := c.Param("id")
+	//get the user claims to restrict search to user's todos only if the role is user.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//get the todo of that id.
-	todo_ptr, err := handler.service.Get_todo_by_id(id)
+	todo_ptr, err := handler.service.Get_todo_by_id(id, user)
 	//check if something went wrong.
 	switch {
 	case err == nil:
@@ -159,8 +208,14 @@ func (handler *Todo_handler) Get_todo_by_id_handler(c *gin.Context) {
 func (handler *Todo_handler) Get_todos_by_category_handler(c *gin.Context) {
 	//get category param
 	category := c.Param("category")
+	//get the user claims to restrict todos to user's todos only if the role is user.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//get all todos of that category.
-	todos, err := handler.service.Get_todos_by_category(category)
+	todos, err := handler.service.Get_todos_by_category(category, user)
 	//check the result of process.
 	switch {
 	case err == nil:
@@ -173,8 +228,14 @@ func (handler *Todo_handler) Get_todos_by_category_handler(c *gin.Context) {
 func (handler *Todo_handler) Get_todos_by_status_handler(c *gin.Context) {
 	//get status param.
 	status := c.Param("status")
+	//get the user claims to restrict todos to user's todos only if the role is user.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//get todos of that status.
-	todos, err := handler.service.Get_todos_by_status(status)
+	todos, err := handler.service.Get_todos_by_status(status, user)
 	//check the result of process.
 	switch {
 	case err == nil:
@@ -194,8 +255,14 @@ func (handler *Todo_handler) Get_todos_by_title_handler(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Missing query param for searching"})
 		return
 	}
+	//get the user claims to restrict todos to user's todos only if the role is user.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//get todos that contain this query param.
-	todos, err := handler.service.Get_todos_by_title(title)
+	todos, err := handler.service.Get_todos_by_title(title, user)
 	//check the result of process.
 	switch {
 	case err == nil:
@@ -206,8 +273,14 @@ func (handler *Todo_handler) Get_todos_by_title_handler(c *gin.Context) {
 }
 
 func (handler *Todo_handler) Get_all_todos_handler(c *gin.Context) {
+	//get the user claims to restrict todos to user's todos only if the role is user.
+	user, err := Get_user_claims(c)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Server error"})
+		return
+	}
 	//Get all todos in system.
-	todos, err := handler.service.Get_all_todos()
+	todos, err := handler.service.Get_all_todos(user)
 	//check the result of process.
 	switch {
 	case err == nil:
