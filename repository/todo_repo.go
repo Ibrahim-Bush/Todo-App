@@ -3,7 +3,6 @@ package repository
 import (
 	"Permanent-Storage-Todo/model"
 	"errors"
-
 	"gorm.io/gorm"
 )
 
@@ -19,7 +18,7 @@ type Todo_repo interface {
 type Todo_writer interface {
 	Create_record(todo *model.Todo) error
 	Update_record_by_id(new_todo *model.Todo) error
-	Update_records_by_category(category string, new_status bool, user *model.User_claims) error
+	Update_records_by_category(category string, updates *model.Todo, user *model.User_claims) error
 	Delete_record_by_id(id int, user *model.User_claims) error
 	Delete_all_records() error
 }
@@ -56,17 +55,18 @@ func (repo *postgres_repo) Update_record_by_id(new_todo *model.Todo) error {
 	return result.Error
 }
 
-func (repo *postgres_repo) Update_records_by_category(category string, new_status bool, user *model.User_claims) error {
+func (repo *postgres_repo) Update_records_by_category(category string, updates *model.Todo, user *model.User_claims) error {
 	//define variable to check result.
 	var result *gorm.DB
 	//differentiate between users based on role.
 	if user.Role == "admin" {
 		//update completed status of all records in the passed category.
-		result = repo.db.Model(&model.Todo{}).Where("category = ?", category).Update("completed", new_status)
+		result = repo.db.Model(&model.Todo{}).Where("category = ?", category).Select("completed", "completed_at").
+		Updates(updates)
 	} else {
 		//update only todos of that category if the user was its creator.
 		result = repo.db.Model(&model.Todo{}).Where("category = ? AND user_id = ?", category, user.UserID).
-			Update("completed", new_status)
+			Select("completed", "completed_at").Updates(updates)
 	}
 
 	return result.Error

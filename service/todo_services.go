@@ -243,9 +243,19 @@ func Apply_changes(updates_struct *model.Update_todo_request, todo_ptr *model.To
 func (service *todo_service) Update_todos_by_category(input_category string, status bool, user *model.User_claims) error {
 	//normalize the input category.
 	category := strings.ToLower(strings.TrimSpace(input_category))
-	//differentiate between users based on rol
+	//create a struct for updates.
+	var todo = model.Todo{
+		Completed: status,
+	}	
+	//check the new status to update completedAt field.
+	if status == true {
+		current_time := time.Now().UTC()
+		todo.CompletedAt = &current_time
+	} else{
+		todo.CompletedAt = nil
+	}
 	//update all todos of that category.
-	err := service.repository.Update_records_by_category(category, status, user)
+	err := service.repository.Update_records_by_category(category, &todo, user)
 	if err != nil {
 		return ErrServerError
 	}
