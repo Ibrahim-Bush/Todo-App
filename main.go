@@ -2,36 +2,45 @@ package main
 
 import (
 	"Permanent-Storage-Todo/config"
-	"Permanent-Storage-Todo/repository"
-	"Permanent-Storage-Todo/service"
 	"Permanent-Storage-Todo/handler"
+	"Permanent-Storage-Todo/repository"
 	"Permanent-Storage-Todo/router"
+	"Permanent-Storage-Todo/service"
 	"log"
-	)
 
-func main(){
+	"github.com/gin-gonic/gin"
+)
 
-	//first: get a connection to database.
+func main() {
+
+	//init router with default middleware.
+	Router := gin.Default()
+
+	//then: get a connection to database.
 	connection_data := "host=localhost user=postgres password=admin dbname=todo_app port=5432 sslmode=disable"
 	database, err := database.Init_database(connection_data)
 	//if something went wrong exit.
-	if err != nil{
+	if err != nil {
 		log.Fatal(err)
 	}
 
 	//linking database to repository layer.
-	repository := repository.Init_postgres_repo(database)
+	todo_repo := repository.Init_postgres_repo(database)
+	user_repo := repository.Init_repo(database)
 
 	//linking repository layer with service layer.
-	service := service.Init_service(repository)
+	todo_service := service.Init_service(todo_repo)
+	user_service := service.Init_user_service(user_repo)
 
 	//linking service layer to handler layer.
-	handler := handler.Init_handler(service)
+	todo_handler := handler.Init_handler(todo_service)
+	user_handler := handler.Init_user_handler(user_service)
 
 	//linking the handler layer to the router.
-	router := router.Init_router(handler)
+	router.Init_router(Router, todo_handler)
+	router.Init_user_router(Router, user_handler)
 
 	//run the server at local port ":8080".
-	router.Run(":8080")
+	Router.Run(":8080")
 
 }
