@@ -27,19 +27,19 @@ type Todo_service interface {
 }
 
 type Modify_todo_service interface {
-	Create_todo(input_struct model.Create_todo_request) (*model.Todo, error)
-	Update_todo_by_id(input_id string, input_struct model.Update_todo_request) (*model.Todo, error)
-	Update_todos_by_category(input_category string, status bool) error
-	Delete_todo_by_id(input_id string) error
+	Create_todo(input_struct model.Create_todo_request, user *model.User_claims) (*model.Todo, error)
+	Update_todo_by_id(input_id string, input_struct model.Update_todo_request, user *model.User_claims) (*model.Todo, error)
+	Update_todos_by_category(input_category string, status bool, user *model.User_claims) error
+	Delete_todo_by_id(input_id string, user *model.User_claims) error
 	Delete_all_todos() error
 }
 
 type Get_todo_service interface {
-	Get_all_todos() ([]model.Todo, error)
-	Get_todo_by_id(input_id string) (*model.Todo, error)
-	Get_todos_by_category(input_category string) ([]model.Todo, error)
-	Get_todos_by_status(input_status string) ([]model.Todo, error)
-	Get_todos_by_title(input_title string) ([]model.Todo, error)
+	Get_all_todos(user *model.User_claims) ([]model.Todo, error)
+	Get_todo_by_id(input_id string, user *model.User_claims) (*model.Todo, error)
+	Get_todos_by_category(input_category string, user *model.User_claims) ([]model.Todo, error)
+	Get_todos_by_status(input_status string, user *model.User_claims) ([]model.Todo, error)
+	Get_todos_by_title(input_title string, user *model.User_claims) ([]model.Todo, error)
 }
 
 type todo_service struct {
@@ -51,13 +51,14 @@ func Init_service(repo repository.Todo_repo) Todo_service {
 	return &new_service
 }
 
-func (service *todo_service) Create_todo(input_struct model.Create_todo_request) (*model.Todo, error) {
+func (service *todo_service) Create_todo(input_struct model.Create_todo_request, user *model.User_claims) (*model.Todo, error) {
 	//define a Todo object for new todo.
 	var todo = model.Todo{
 		Title:     input_struct.Title,
 		Category:  input_struct.Category,
 		Priority:  input_struct.Priority,
 		Completed: input_struct.Completed,
+		UserID:    user.UserID,
 	}
 	//Normalize all fields and validate them.
 	err := Normalize_todo_fields(&todo)
@@ -131,7 +132,7 @@ func Normalize_todo_fields(todo *model.Todo) error {
 	return nil
 }
 
-func (service *todo_service) Update_todo_by_id(input_id string, input_struct model.Update_todo_request) (*model.Todo, error) {
+func (service *todo_service) Update_todo_by_id(input_id string, input_struct model.Update_todo_request, user *model.User_claims) (*model.Todo, error) {
 	//first convert id to integer.
 	id, err := strconv.Atoi(input_id)
 	if err != nil {
@@ -143,7 +144,7 @@ func (service *todo_service) Update_todo_by_id(input_id string, input_struct mod
 		return nil, err
 	}
 	//then get the required todo to update it.
-	todo_ptr, err := service.repository.Get_record_by_id(id)
+	todo_ptr, err := service.repository.Get_record_by_id(id, user)
 	if err != nil {
 		//check if record not found or server fails.
 		if errors.Is(err, repository.ErrNotFound) {
@@ -239,25 +240,26 @@ func Apply_changes(updates_struct *model.Update_todo_request, todo_ptr *model.To
 	return nil
 }
 
-func (service *todo_service) Update_todos_by_category(input_category string, status bool) error {
+func (service *todo_service) Update_todos_by_category(input_category string, status bool, user *model.User_claims) error {
 	//normalize the input category.
 	category := strings.ToLower(strings.TrimSpace(input_category))
+	//differentiate between users based on rol
 	//update all todos of that category.
-	err := service.repository.Update_records_by_category(category, status)
+	err := service.repository.Update_records_by_category(category, status, user)
 	if err != nil {
 		return ErrServerError
 	}
 	return nil
 }
 
-func (service *todo_service) Delete_todo_by_id(input_id string) error {
+func (service *todo_service) Delete_todo_by_id(input_id string, user *model.User_claims) error {
 	//convert id to integer.
 	id, err := strconv.Atoi(input_id)
 	if err != nil {
 		return ErrInvalidId
 	}
 	//delete todo of that id.
-	err = service.repository.Delete_record_by_id(id)
+	err = service.repository.Delete_record_by_id(id, user)
 	switch {
 	case err == nil:
 		return nil
@@ -277,9 +279,9 @@ func (service *todo_service) Delete_all_todos() error {
 	return nil
 }
 
-func (service *todo_service) Get_all_todos() ([]model.Todo, error) {
+func (service *todo_service) Get_all_todos(user *model.User_claims) ([]model.Todo, error) {
 	//get all records from repository.
-	todos, err := service.repository.Get_all_records()
+	todos, err := service.repository.Get_all_records(user)
 	//check if something went wrong.
 	if err != nil {
 		return nil, ErrServerError
@@ -287,14 +289,14 @@ func (service *todo_service) Get_all_todos() ([]model.Todo, error) {
 	return todos, nil
 }
 
-func (service *todo_service) Get_todo_by_id(input_id string) (*model.Todo, error) {
+func (service *todo_service) Get_todo_by_id(input_id string, user *model.User_claims) (*model.Todo, error) {
 	//convert id to integer.
 	id, err := strconv.Atoi(input_id)
 	if err != nil {
 		return nil, ErrInvalidId
 	}
 	//get todo from repository.
-	todo_ptr, err := service.repository.Get_record_by_id(id)
+	todo_ptr, err := service.repository.Get_record_by_id(id, user)
 	//check the result.
 	switch {
 	case err == nil:
@@ -306,18 +308,18 @@ func (service *todo_service) Get_todo_by_id(input_id string) (*model.Todo, error
 	}
 }
 
-func (service *todo_service) Get_todos_by_category(input_category string) ([]model.Todo, error) {
+func (service *todo_service) Get_todos_by_category(input_category string, user *model.User_claims) ([]model.Todo, error) {
 	//normalize input category.
 	category := strings.ToLower(strings.TrimSpace(input_category))
 	//get todos of this category from repository.
-	todos, err := service.repository.Get_records_by_category(category)
+	todos, err := service.repository.Get_records_by_category(category, user)
 	if err != nil {
 		return nil, ErrServerError
 	}
 	return todos, nil
 }
 
-func (service *todo_service) Get_todos_by_status(input_status string) ([]model.Todo, error) {
+func (service *todo_service) Get_todos_by_status(input_status string, user *model.User_claims) ([]model.Todo, error) {
 	//clean input from white sapces.
 	clean_status := strings.TrimSpace(input_status)
 	//convert status to boolean.
@@ -326,18 +328,18 @@ func (service *todo_service) Get_todos_by_status(input_status string) ([]model.T
 		return nil, ErrInvalidStatus
 	}
 	//get todos of that status from repository.
-	todos, err := service.repository.Get_records_by_status(status)
+	todos, err := service.repository.Get_records_by_status(status, user)
 	if err != nil {
 		return nil, ErrServerError
 	}
 	return todos, nil
 }
 
-func (service *todo_service) Get_todos_by_title(input_title string) ([]model.Todo, error) {
+func (service *todo_service) Get_todos_by_title(input_title string, user *model.User_claims) ([]model.Todo, error) {
 	//clean white spaces at the start and end.
 	title := strings.TrimSpace(input_title)
 	//get todos that match this title from repository.
-	todos, err := service.repository.Get_records_by_title(title)
+	todos, err := service.repository.Get_records_by_title(title, user)
 	if err != nil {
 		return nil, ErrServerError
 	}

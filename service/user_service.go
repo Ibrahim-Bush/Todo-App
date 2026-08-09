@@ -88,7 +88,12 @@ func (service *user_service) Login_user(input_struct model.Auth_request) (string
 		return "", ErrWrongPassword
 	}
 	//if password is true, create a token.
-	token, err := utils.Generate_token(user.Username, user.Role, user.ID)
+	claims := model.User_claims {
+		Username: user.Username,
+		UserID: user.ID,
+		Role: user.Role,
+	}
+	token, err := utils.Generate_token(claims)
 	if err != nil {
 		return "", ErrServerError
 	}
