@@ -243,15 +243,18 @@ func Apply_changes(updates_struct *model.Update_todo_request, todo_ptr *model.To
 func (service *todo_service) Update_todos_by_category(input_category string, status bool, user *model.User_claims) error {
 	//normalize the input category.
 	category := strings.ToLower(strings.TrimSpace(input_category))
+	if category == "" {
+		return ErrEmptyCategory
+	}
 	//create a struct for updates.
 	var todo = model.Todo{
 		Completed: status,
-	}	
+	}
 	//check the new status to update completedAt field.
 	if status == true {
 		current_time := time.Now().UTC()
 		todo.CompletedAt = &current_time
-	} else{
+	} else {
 		todo.CompletedAt = nil
 	}
 	//update all todos of that category.
@@ -276,7 +279,7 @@ func (service *todo_service) Delete_todo_by_id(input_id string, user *model.User
 	case errors.Is(err, repository.ErrNotFound):
 		return ErrNotFound
 	default:
-		return err
+		return ErrServerError
 	}
 }
 
@@ -321,6 +324,9 @@ func (service *todo_service) Get_todo_by_id(input_id string, user *model.User_cl
 func (service *todo_service) Get_todos_by_category(input_category string, user *model.User_claims) ([]model.Todo, error) {
 	//normalize input category.
 	category := strings.ToLower(strings.TrimSpace(input_category))
+	if category == "" {
+		return nil, ErrEmptyCategory
+	}
 	//get todos of this category from repository.
 	todos, err := service.repository.Get_records_by_category(category, user)
 	if err != nil {
@@ -348,6 +354,9 @@ func (service *todo_service) Get_todos_by_status(input_status string, user *mode
 func (service *todo_service) Get_todos_by_title(input_title string, user *model.User_claims) ([]model.Todo, error) {
 	//clean white spaces at the start and end.
 	title := strings.TrimSpace(input_title)
+	if title == "" {
+		return nil, ErrEmptyTitle
+	}
 	//get todos that match this title from repository.
 	todos, err := service.repository.Get_records_by_title(title, user)
 	if err != nil {

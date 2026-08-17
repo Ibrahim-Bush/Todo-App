@@ -140,6 +140,8 @@ func (handler *Todo_handler) Update_todos_by_category_handler(c *gin.Context) {
 	switch {
 	case err == nil:
 		c.JSON(200, gin.H{"message": "Todos updated successfully"})
+	case errors.Is(err, service.ErrEmptyCategory):
+		c.JSON(400, gin.H{"error": "Category cannot be empty"})	
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}
@@ -220,6 +222,8 @@ func (handler *Todo_handler) Get_todos_by_category_handler(c *gin.Context) {
 	switch {
 	case err == nil:
 		c.JSON(200, todos)
+	case errors.Is(err, service.ErrEmptyCategory):
+		c.JSON(400, gin.H{"error": "Category cannot be empty"})		
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}
@@ -285,6 +289,8 @@ func (handler *Todo_handler) Get_all_todos_handler(c *gin.Context) {
 	switch {
 	case err == nil:
 		c.JSON(200, todos)
+	case errors.Is(err, service.ErrEmptyTitle):
+		c.JSON(400, gin.H{"error": "Title cannot be empty"})	
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}

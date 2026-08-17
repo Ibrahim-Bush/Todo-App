@@ -31,5 +31,5 @@ func (mock *Mock_user_repo) Get_record_by_name(name string) (*model.User, error)
 }
 
 func (repo *Mock_user_repo) Get_record_by_id(id int) (*model.User, error) {
-	return nil, nil
+	panic("Mock error: unexpected call to Get_user_by_id method")
 }

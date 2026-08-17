@@ -79,8 +79,7 @@ func Test_create_user(t *testing.T) {
 		t.Run(usecase.name, func(t *testing.T) {
 			//create a new mock repo.
 			mock_repo := &mocks.Mock_user_repo{
-				Wanted_user: usecase.repo_user,
-				Wanted_err:  usecase.repo_err,
+				Wanted_err: usecase.repo_err,
 			}
 			//pass mock to the service.
 			service := Init_user_service(mock_repo)
@@ -106,9 +105,9 @@ func compare_user_structs(t *testing.T, stage string, received *model.User, expe
 	//first compare pointers.
 	if received == nil || expected == nil {
 		if received == nil && expected != nil {
-			t.Errorf("Boundary: %s expected struct %+v got nil pointer", stage, expected)
+			t.Errorf("Boundary (%s): expected struct %+v got nil pointer", stage, expected)
 		} else if received != nil && expected == nil {
-			t.Errorf("Boundary: %s expected nil struct got %+v", stage, received)
+			t.Errorf("Boundary (%s): expected nil struct got %+v", stage, received)
 		}
 	} else {
 		//compare received struct fields to the expected struct fields.
@@ -197,9 +196,8 @@ func Test_login_user(t *testing.T) {
 		t.Run(usecase.name, func(t *testing.T) {
 			//create new mock repo with case data.
 			mock_repo := &mocks.Mock_user_repo{
-				Received_name: usecase.repo_name,
-				Wanted_err:    usecase.repo_err,
-				Wanted_user:   usecase.repo_user,
+				Wanted_err:  usecase.repo_err,
+				Wanted_user: usecase.repo_user,
 			}
 			//pass mock to the service.
 			service := Init_user_service(mock_repo)
@@ -217,17 +215,19 @@ func Test_login_user(t *testing.T) {
 			if err != usecase.expected_err {
 				t.Errorf("Response: Expected error %v got %v", usecase.expected_err, err)
 			}
-			if (usecase.expected_token == "" && token != usecase.expected_token){
+			if usecase.expected_token == "" && token != usecase.expected_token {
 				t.Errorf("Response: Expected token %s got %s", usecase.expected_token, token)
-			}else if (usecase.expected_token != ""){
+			} else if usecase.expected_token != "" {
 				//verify the token in response.
 				claims, err := utils.Verify_token(token)
 				if claims != nil && err == nil {
 					if claims.Username != usecase.repo_user.Username {
 						t.Errorf("Response: Expected username in token %s got %s", usecase.repo_user.Username, claims.Username)
-					}else if claims.UserID != usecase.repo_user.ID {
+					}
+					if claims.UserID != usecase.repo_user.ID {
 						t.Errorf("Response: Expected userID in token %d got %d", usecase.repo_user.ID, claims.UserID)
-					}else if claims.Role != usecase.repo_user.Role {
+					}
+					if claims.Role != usecase.repo_user.Role {
 						t.Errorf("Response: Expected Role in token %s got %s", usecase.repo_user.Role, claims.Role)
 					}
 				}
@@ -235,4 +235,3 @@ func Test_login_user(t *testing.T) {
 		})
 	}
 }
-
