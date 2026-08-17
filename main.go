@@ -17,7 +17,7 @@ func main() {
 	Router := gin.Default()
 
 	//then: get a connection to database.
-	connection_data := "host=localhost user=postgres password=admin dbname=todo_app port=5432 sslmode=disable"
+	connection_data := "host=db user=postgres password=admin dbname=todo_app port=5432 sslmode=disable"
 	database, err := database.Init_database(connection_data)
 	//if something went wrong exit.
 	if err != nil {
