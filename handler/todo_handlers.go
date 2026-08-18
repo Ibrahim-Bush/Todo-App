@@ -36,6 +36,16 @@ func Get_user_claims (c *gin.Context) (*model.User_claims, error) {
 	return user, nil
 }
 
+// @Summary	 		Create a new todo.
+// @Description 	Create a new todo with title, completed status, category, priority, and optional due date.
+// @Tags			Todo
+// @Accept			json
+// @Produce			json
+// @Param			request body 	model.Create_todo_request true 	"Todo creation details"
+// @Success			200  {object}	model.Todo						"created todo details"
+// @Failure			400	 {object}	map[string]string				"Invalid input error"
+// @Failure			500	 {object}	map[string]string				"Server error"
+// @Router			/todos [post]
 func (handler *Todo_handler) Create_todo_handler(c *gin.Context) {
 	//get the data from json body.
 	var data model.Create_todo_request
@@ -71,6 +81,18 @@ func (handler *Todo_handler) Create_todo_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Update a todo by its ID.
+// @Description 	Update details of an existing todo item by its ID.
+// @Tags			Todo
+// @Accept			json
+// @Produce			json
+// @Param			id 				path string true 					"Todo ID"
+// @Param			request body 	model.Update_todo_request true 	"Updated todo details"
+// @Success			200  {object}	model.Todo						"Updated todo details"
+// @Failure			400	 {object}	map[string]string				"Invalid input error"
+// @Failure			404	 {object}	map[string]string				"Todo not found"
+// @Failure			500	 {object}	map[string]string				"Server error"
+// @Router			/todos/{id} [put]
 func (handler *Todo_handler) Update_todo_by_id_handler(c *gin.Context) {
 	//first take the id param.
 	id := c.Param("id")
@@ -112,6 +134,18 @@ func (handler *Todo_handler) Update_todo_by_id_handler(c *gin.Context) {
 	}
 }
 
+
+// @Summary	 		Update todos by category.
+// @Description 	Update the completed status of all todos in a specific category.
+// @Tags			Todo
+// @Accept			json
+// @Produce			json
+// @Param			category 		path string true 					"Category name"
+// @Param			request body 	model.Update_todo_request true 	"Updated todos status"
+// @Success			200  {object}	map[string]string				"Todos updated successfully"
+// @Failure			400	 {object}	map[string]string				"Invalid input error"
+// @Failure			500	 {object}	map[string]string				"Server error"
+// @Router			/todos/category/{category} [put]
 func (handler *Todo_handler) Update_todos_by_category_handler(c *gin.Context) {
 	//first take the category param.
 	category := c.Param("category")
@@ -147,6 +181,16 @@ func (handler *Todo_handler) Update_todos_by_category_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Delete a todo by its ID.
+// @Description 	Delete a specific todo item by its ID.
+// @Tags			Todo
+// @Produce			json
+// @Param			id 				path string true 				"Todo ID"
+// @Success			200  {object}	map[string]string				"Todo deleted successfully"
+// @Failure			400	 {object}	map[string]string				"Invalid input error"
+// @Failure			404	 {object}	map[string]string				"Todo not found"
+// @Failure			500	 {object}	map[string]string				"Server error"
+// @Router			/todos/{id} [delete]
 func (handler *Todo_handler) Delete_todo_by_id_handler(c *gin.Context) {
 	//get the id param.
 	id := c.Param("id")
@@ -171,6 +215,13 @@ func (handler *Todo_handler) Delete_todo_by_id_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Delete all todos.
+// @Description 	Delete all todos items in the system.
+// @Tags			Todo
+// @Produce			json
+// @Success			200  {object}	map[string]string				"Todos deleted successfully"
+// @Failure			500	 {object}	map[string]string				"Server error"
+// @Router			/todos [delete]
 func (handler *Todo_handler) Delete_all_todos_handler(c *gin.Context) {
 	//delete all todos in the system.
 	err := handler.service.Delete_all_todos()
@@ -183,6 +234,16 @@ func (handler *Todo_handler) Delete_all_todos_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Get a todo by its ID.
+// @Description 	Retrieve a specific todo item by its ID.
+// @Tags			Todo
+// @Produce			json
+// @Param			id 				path string true 				"Todo ID"
+// @Success			200  {object}	model.Todo						"Todo details"
+// @Failure			400	 {object}	map[string]string				"Invalid input error"
+// @Failure			404	 {object}	map[string]string				"Todo not found"
+// @Failure			500	 {object}	map[string]string				"Server error"
+// @Router			/todos/{id} [get]
 func (handler *Todo_handler) Get_todo_by_id_handler(c *gin.Context) {
 	//get id parameter.
 	id := c.Param("id")
@@ -207,6 +268,15 @@ func (handler *Todo_handler) Get_todo_by_id_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Get todos by category.
+// @Description 	Retrieve all todos in a specific category.
+// @Tags			Todo
+// @Produce			json
+// @Param			category 		path string true 		"Category name"
+// @Success		200  {array}	model.Todo				"List of todos in required category"
+// @Failure			400	 {object}	map[string]string		"Invalid input error"
+// @Failure			500	 {object}	map[string]string		"Server error"
+// @Router			/todos/category/{category} [get]
 func (handler *Todo_handler) Get_todos_by_category_handler(c *gin.Context) {
 	//get category param
 	category := c.Param("category")
@@ -229,6 +299,15 @@ func (handler *Todo_handler) Get_todos_by_category_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Get todos by status.
+// @Description 	Retrieve all todos with a specific completion status.
+// @Tags			Todo
+// @Produce			json
+// @Param			status 			path string true 		"Todo completed status"
+// @Success			200  {array}	model.Todo				"List of todos with required status"
+// @Failure			400	 {object}	map[string]string		"Invalid input error"
+// @Failure			500	 {object}	map[string]string		"Server error"
+// @Router			/todos/status/{status} [get]
 func (handler *Todo_handler) Get_todos_by_status_handler(c *gin.Context) {
 	//get status param.
 	status := c.Param("status")
@@ -251,6 +330,15 @@ func (handler *Todo_handler) Get_todos_by_status_handler(c *gin.Context) {
 	}
 }
 
+// @Summary	 		Get todos by title.
+// @Description 	Search for todos partially matching the title query parameter.
+// @Tags			Todo
+// @Produce			json
+// @Param			q 				query string true 		"Search query string"
+// @Success			200  {array}	model.Todo				"List of matching todos"
+// @Failure			400	 {object}	map[string]string		"Invalid input error"
+// @Failure			500	 {object}	map[string]string		"Server error"
+// @Router			/todos/search [get]
 func (handler *Todo_handler) Get_todos_by_title_handler(c *gin.Context) {
 	//get the query param.
 	title, exist := c.GetQuery("q")
@@ -271,11 +359,20 @@ func (handler *Todo_handler) Get_todos_by_title_handler(c *gin.Context) {
 	switch {
 	case err == nil:
 		c.JSON(200, todos)
+	case errors.Is(err, service.ErrEmptyTitle):
+		c.JSON(400, gin.H{"error": "Searching parameter cannot be empty"})			
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}
 }
 
+// @Summary	 		Get all todos.
+// @Description 	Retrieve all todos in the system.
+// @Tags			Todo
+// @Produce			json
+// @Success			200  {array}	model.Todo				"List of all todos"
+// @Failure			500	 {object}	map[string]string		"Server error"
+// @Router			/todos [get]
 func (handler *Todo_handler) Get_all_todos_handler(c *gin.Context) {
 	//get the user claims to restrict todos to user's todos only if the role is user.
 	user, err := Get_user_claims(c)
@@ -289,8 +386,6 @@ func (handler *Todo_handler) Get_all_todos_handler(c *gin.Context) {
 	switch {
 	case err == nil:
 		c.JSON(200, todos)
-	case errors.Is(err, service.ErrEmptyTitle):
-		c.JSON(400, gin.H{"error": "Title cannot be empty"})	
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}

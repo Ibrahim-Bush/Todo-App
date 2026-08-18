@@ -1,0 +1,484 @@
+basePath: /
+definitions:
+  model.Auth_request:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.Create_todo_request:
+    properties:
+      category:
+        type: string
+      completed:
+        type: boolean
+      dueDate:
+        type: string
+      priority:
+        type: string
+      title:
+        type: string
+    type: object
+  model.Todo:
+    properties:
+      category:
+        type: string
+      completed:
+        type: boolean
+      completedAt:
+        type: string
+      dueDate:
+        type: string
+      id:
+        type: integer
+      priority:
+        type: string
+      title:
+        type: string
+    type: object
+  model.Update_todo_request:
+    properties:
+      category:
+        type: string
+      completed:
+        type: boolean
+      dueDate:
+        type: string
+      priority:
+        type: string
+      title:
+        description: we use pointers to differentiate default zero-valued from user
+          input.
+        type: string
+    type: object
+  model.User:
+    properties:
+      id:
+        type: integer
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: RESTful API for managing todos with GORM and Gin framework.
+  title: Todo App API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user credentials and generate a JWT token.
+      parameters:
+      - description: User login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Auth_request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Authentication JWT token
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid json format
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login.
+      tags:
+      - User
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with provided username and password and
+        default role (user).
+      parameters:
+      - description: User signup credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Auth_request'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created user
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Error message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user.
+      tags:
+      - User
+  /todos:
+    delete:
+      description: Delete all todos items in the system.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todos deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete all todos.
+      tags:
+      - Todo
+    get:
+      description: Retrieve all todos in the system.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all todos
+          schema:
+            items:
+              $ref: '#/definitions/model.Todo'
+            type: array
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all todos.
+      tags:
+      - Todo
+    post:
+      consumes:
+      - application/json
+      description: Create a new todo with title, completed status, category, priority,
+        and optional due date.
+      parameters:
+      - description: Todo creation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Create_todo_request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: created todo details
+          schema:
+            $ref: '#/definitions/model.Todo'
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new todo.
+      tags:
+      - Todo
+  /todos/{id}:
+    delete:
+      description: Delete a specific todo item by its ID.
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todo deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Todo not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a todo by its ID.
+      tags:
+      - Todo
+    get:
+      description: Retrieve a specific todo item by its ID.
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todo details
+          schema:
+            $ref: '#/definitions/model.Todo'
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Todo not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a todo by its ID.
+      tags:
+      - Todo
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing todo item by its ID.
+      parameters:
+      - description: Todo ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated todo details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Update_todo_request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated todo details
+          schema:
+            $ref: '#/definitions/model.Todo'
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Todo not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a todo by its ID.
+      tags:
+      - Todo
+  /todos/category/{category}:
+    get:
+      description: Retrieve all todos in a specific category.
+      parameters:
+      - description: Category name
+        in: path
+        name: category
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of todos in required category
+          schema:
+            items:
+              $ref: '#/definitions/model.Todo'
+            type: array
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get todos by category.
+      tags:
+      - Todo
+    put:
+      consumes:
+      - application/json
+      description: Update the completed status of all todos in a specific category.
+      parameters:
+      - description: Category name
+        in: path
+        name: category
+        required: true
+        type: string
+      - description: Updated todos status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Update_todo_request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Todos updated successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update todos by category.
+      tags:
+      - Todo
+  /todos/search:
+    get:
+      description: Search for todos partially matching the title query parameter.
+      parameters:
+      - description: Search query string
+        in: query
+        name: q
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of matching todos
+          schema:
+            items:
+              $ref: '#/definitions/model.Todo'
+            type: array
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get todos by title.
+      tags:
+      - Todo
+  /todos/status/{status}:
+    get:
+      description: Retrieve all todos with a specific completion status.
+      parameters:
+      - description: Todo completed status
+        in: path
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of todos with required status
+          schema:
+            items:
+              $ref: '#/definitions/model.Todo'
+            type: array
+        "400":
+          description: Invalid input error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get todos by status.
+      tags:
+      - Todo
+swagger: "2.0"

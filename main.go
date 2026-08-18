@@ -1,7 +1,8 @@
 package main
 
 import (
-	"Permanent-Storage-Todo/config"
+	database "Permanent-Storage-Todo/config"
+	_ "Permanent-Storage-Todo/docs"
 	"Permanent-Storage-Todo/handler"
 	"Permanent-Storage-Todo/repository"
 	"Permanent-Storage-Todo/router"
@@ -9,12 +10,23 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title			Todo App API
+// @version 		1.0
+// @description 	RESTful API for managing todos with GORM and Gin framework.
+// @host			localhost:8080
+// @BasePath		/
 
 func main() {
 
 	//init router with default middleware.
 	Router := gin.Default()
+
+	//add the swagger documentation on router.
+	Router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	//then: get a connection to database.
 	connection_data := "host=db user=postgres password=admin dbname=todo_app port=5432 sslmode=disable"
