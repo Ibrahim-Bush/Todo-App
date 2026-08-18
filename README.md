@@ -71,6 +71,17 @@ Our app has the following features:
   - **Full Secrecy**: Returns `404 Not found` response for any item not belonging to the current user, completely **hiding unowned data** to prevent users from discovering system or attempting **unauthorized tampering**.
   - **Admin Privileges**: Grants administrative accounts **system-wide access** to inspect and manage records across all users.
   
+### Unit Testing
+  The application includes unit tests covering core business logic, input validation, user management and error handling.
+  - **User Authentication**: Tests user creation (signup), credential checking and login logic.
+  - **Todo Management**: Tests todo **CRUD operations**, status filtering, category updates, and title search logic.  
+   
+  To run all unit tests, execute the following  command in terminal:
+
+  ```
+    go test -v ./...
+  ```
+
 ## How To Run
 
 Follow these steps to run the code on your local device:
@@ -95,9 +106,22 @@ go run .
 After this command the API server will start and run locally on
 `http://localhost:8080` listening for incoming HTTP requests.
 
+### OR Run using Docker:
+Start the application and database using docker command in terminal:
+
+```
+  docker-compose up
+```
+
+Then, you can stop all containers using this command:
+
+```
+  docker-compose down
+```
+
 ### Practical Example:
 
-- First: your must signup in the system: send a **POST** request to `http://localhost:8080/signup` with the  JSON body:
+- First: you must signup in the system: send a **POST** request to `http://localhost:8080/signup` with the  JSON body:
   ```
   {"username": "your_name", "password": "your_secret_password"}
   ```
@@ -126,3 +150,10 @@ After this command the API server will start and run locally on
     "dueDate": null
   }
   ```
+
+
+## API Documentation
+
+To view an **interactive API documentation** generated using swagger. Once the server is running, access Swagger UI at this address:  
+
+http://localhost:8080/swagger/index.html
