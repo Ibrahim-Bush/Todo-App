@@ -1,4 +1,4 @@
-module Permanent-Storage-Todo
+module Todo-App
 
 go 1.26.5
 

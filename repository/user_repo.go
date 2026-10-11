@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"Permanent-Storage-Todo/model"
+	"Todo-App/model"
 	"errors"
 
 	"gorm.io/gorm"

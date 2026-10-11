@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"Permanent-Storage-Todo/model"
+	"Todo-App/model"
 )
 
 type Mock_todo_repo struct {

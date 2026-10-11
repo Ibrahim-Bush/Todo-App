@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"Permanent-Storage-Todo/model"
-	"Permanent-Storage-Todo/service"
+	"Todo-App/model"
+	"Todo-App/service"
 	"errors"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +21,7 @@ func Init_handler(service service.Todo_service) *Todo_handler {
 	return &new_handler
 }
 
-func Get_user_claims (c *gin.Context) (*model.User_claims, error) {
+func Get_user_claims(c *gin.Context) (*model.User_claims, error) {
 	//get the user from gin context.
 	value, exists := c.Get("user")
 	if !exists {
@@ -134,7 +134,6 @@ func (handler *Todo_handler) Update_todo_by_id_handler(c *gin.Context) {
 	}
 }
 
-
 // @Summary	 		Update todos by category.
 // @Description 	Update the completed status of all todos in a specific category.
 // @Tags			Todo
@@ -175,7 +174,7 @@ func (handler *Todo_handler) Update_todos_by_category_handler(c *gin.Context) {
 	case err == nil:
 		c.JSON(200, gin.H{"message": "Todos updated successfully"})
 	case errors.Is(err, service.ErrEmptyCategory):
-		c.JSON(400, gin.H{"error": "Category cannot be empty"})	
+		c.JSON(400, gin.H{"error": "Category cannot be empty"})
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}
@@ -293,7 +292,7 @@ func (handler *Todo_handler) Get_todos_by_category_handler(c *gin.Context) {
 	case err == nil:
 		c.JSON(200, todos)
 	case errors.Is(err, service.ErrEmptyCategory):
-		c.JSON(400, gin.H{"error": "Category cannot be empty"})		
+		c.JSON(400, gin.H{"error": "Category cannot be empty"})
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}
@@ -360,7 +359,7 @@ func (handler *Todo_handler) Get_todos_by_title_handler(c *gin.Context) {
 	case err == nil:
 		c.JSON(200, todos)
 	case errors.Is(err, service.ErrEmptyTitle):
-		c.JSON(400, gin.H{"error": "Searching parameter cannot be empty"})			
+		c.JSON(400, gin.H{"error": "Searching parameter cannot be empty"})
 	default:
 		c.JSON(500, gin.H{"error": "Server error"})
 	}

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"Permanent-Storage-Todo/mocks"
-	"Permanent-Storage-Todo/model"
-	"Permanent-Storage-Todo/repository"
-	"Permanent-Storage-Todo/utils"
+	"Todo-App/mocks"
+	"Todo-App/model"
+	"Todo-App/repository"
+	"Todo-App/utils"
 	"errors"
 	"strings"
 	"testing"

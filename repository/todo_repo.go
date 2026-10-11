@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"Permanent-Storage-Todo/model"
+	"Todo-App/model"
 	"errors"
+
 	"gorm.io/gorm"
 )
 
@@ -62,7 +63,7 @@ func (repo *postgres_repo) Update_records_by_category(category string, updates *
 	if user.Role == "admin" {
 		//update completed status of all records in the passed category.
 		result = repo.db.Model(&model.Todo{}).Where("category = ?", category).Select("completed", "completed_at").
-		Updates(updates)
+			Updates(updates)
 	} else {
 		//update only todos of that category if the user was its creator.
 		result = repo.db.Model(&model.Todo{}).Where("category = ? AND user_id = ?", category, user.UserID).

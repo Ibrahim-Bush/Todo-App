@@ -1,12 +1,12 @@
 package main
 
 import (
-	database "Permanent-Storage-Todo/config"
-	_ "Permanent-Storage-Todo/docs"
-	"Permanent-Storage-Todo/handler"
-	"Permanent-Storage-Todo/repository"
-	"Permanent-Storage-Todo/router"
-	"Permanent-Storage-Todo/service"
+	database "Todo-App/config"
+	_ "Todo-App/docs"
+	"Todo-App/handler"
+	"Todo-App/repository"
+	"Todo-App/router"
+	"Todo-App/service"
 	"log"
 
 	"github.com/gin-gonic/gin"

@@ -1,10 +1,11 @@
 package middleware
 
 import (
-	"Permanent-Storage-Todo/utils"
+	"Todo-App/handler"
+	"Todo-App/utils"
 	"errors"
 	"strings"
-	"Permanent-Storage-Todo/handler"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,7 +48,7 @@ func Auth_middleware(c *gin.Context) {
 }
 
 func Authorization_middleware(c *gin.Context) {
-	
+
 	//get the user struct from the gin context.
 	user, err := handler.Get_user_claims(c)
 	if err != nil {

@@ -1,9 +1,9 @@
 package service
 
 import (
-	"Permanent-Storage-Todo/mocks"
-	"Permanent-Storage-Todo/model"
-	"Permanent-Storage-Todo/repository"
+	"Todo-App/mocks"
+	"Todo-App/model"
+	"Todo-App/repository"
 	"errors"
 	"testing"
 	"time"

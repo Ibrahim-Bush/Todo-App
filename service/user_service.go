@@ -1,9 +1,9 @@
 package service
 
 import (
-	"Permanent-Storage-Todo/model"
-	"Permanent-Storage-Todo/repository"
-	"Permanent-Storage-Todo/utils"
+	"Todo-App/model"
+	"Todo-App/repository"
+	"Todo-App/utils"
 	"errors"
 	"strings"
 )
@@ -88,10 +88,10 @@ func (service *user_service) Login_user(input_struct model.Auth_request) (string
 		return "", ErrWrongPassword
 	}
 	//if password is true, create a token.
-	claims := model.User_claims {
+	claims := model.User_claims{
 		Username: user.Username,
-		UserID: user.ID,
-		Role: user.Role,
+		UserID:   user.ID,
+		Role:     user.Role,
 	}
 	token, err := utils.Generate_token(claims)
 	if err != nil {

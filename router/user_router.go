@@ -1,7 +1,7 @@
 package router
 
 import (
-	"Permanent-Storage-Todo/handler"
+	"Todo-App/handler"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,8 +1,8 @@
 package service
 
 import (
-	"Permanent-Storage-Todo/model"
-	"Permanent-Storage-Todo/repository"
+	"Todo-App/model"
+	"Todo-App/repository"
 	"errors"
 	"strconv"
 	"strings"

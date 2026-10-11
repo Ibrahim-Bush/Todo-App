@@ -1,22 +1,21 @@
 package handler
 
 import (
-	"Permanent-Storage-Todo/model"
-	"Permanent-Storage-Todo/service"
+	"Todo-App/model"
+	"Todo-App/service"
 	"errors"
 
 	"github.com/gin-gonic/gin"
 )
 
-type User_handler struct{
+type User_handler struct {
 	service service.User_service
 }
 
-func Init_user_handler(service service.User_service) *User_handler{
+func Init_user_handler(service service.User_service) *User_handler {
 	new_handler := User_handler{service: service}
 	return &new_handler
 }
-
 
 // @Summary	 		Register a new user.
 // @Description 	Create a new user account with provided username and password and default role (user).
@@ -28,12 +27,12 @@ func Init_user_handler(service service.User_service) *User_handler{
 // @Failure			400	 {object}	map[string]string			"Error message"
 // @Failure			500	 {object}	map[string]string			"Server error"
 // @Router			/signup [post]
-func (handler *User_handler) Create_user_handler(c *gin.Context){
+func (handler *User_handler) Create_user_handler(c *gin.Context) {
 	//get the data form json body.
 	var user_request model.Auth_request
 	err := c.ShouldBindJSON(&user_request)
 	//if json is invalid.
-	if err != nil{
+	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid json"})
 		return
 	}
@@ -67,12 +66,12 @@ func (handler *User_handler) Create_user_handler(c *gin.Context){
 // @Failure			401	 {object}	map[string]string			"Invalid credentials"
 // @Failure			500	 {object}	map[string]string			"Server error"
 // @Router			/login [post]
-func (handler *User_handler) Login_user_handler(c *gin.Context){
+func (handler *User_handler) Login_user_handler(c *gin.Context) {
 	//get the user input from the json body.
 	var user_request model.Auth_request
 	err := c.ShouldBindJSON(&user_request)
 	//check the result.
-	if err != nil{
+	if err != nil {
 		c.JSON(400, gin.H{"error": "Invalid json"})
 		return
 	}
