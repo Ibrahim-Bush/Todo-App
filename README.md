@@ -1,4 +1,4 @@
-# Permanent-Storage-Todo-App
+# Todo-App
 
 ## Overview
 
@@ -150,6 +150,13 @@ Then, you can stop all containers using this command:
     "dueDate": null
   }
   ```
+
+## Project Evolution & Releases
+
+This project was built and evolved in structured phases to demonstrate architectural growth:
+
+  * **[v1.0 (In-Memory App)](https://github.com/Ibrahim-Bush/Todo-App/releases/tag/v1.0):** The initial foundational phase focused on core CRUD operations using an in-memory data structure.
+  * **[v2.0 (Complete & Production-Ready)](https://github.com/Ibrahim-Bush/Todo-App/releases/tag/v2.0):** The complete, fully-featured and modern version, upgraded with database persistence (GORM), Docker containerization, unit testing and API documentation.
 
 
 ## API Documentation
